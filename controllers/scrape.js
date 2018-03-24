@@ -26,14 +26,14 @@ router.get('/scrape', (req, res) => {
         // Check for duplicates in db
         let duplicate = false;
         for (let i = 0; i < dbArticles.length; i++) {
-          if (dbArticles[i].title === result.title) {
+          if (dbArticles[i].title === newArticle.title) {
             duplicate = true;
             break;
           }
         }
 
         // Before adding to db make sure article meets parameters 
-        if (!duplicate && result.title && result.link) {
+        if (!duplicate && newArticle.title && newArticle.link) {
           resultArr.push(newArticle);
         } else {
           console.log("That article is already in the database");
@@ -41,6 +41,5 @@ router.get('/scrape', (req, res) => {
       });
     })
 })
-
 
 module.exports = router;
