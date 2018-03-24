@@ -1,36 +1,48 @@
-//Dependencies
-const express = require("express");
-const mongoose = require("mongoose");
-const exphbs = require("express-handlebars");
-const bodyParser = require("body-parser");
-const methodOverride = require("method-override");
-const path = require("path");
-
-//Routes
-const commentRoutes = require(".controllers/comments");
-const scrapeRoutes = require(".controllers/scrape");
-const viewRoutes = require("./controllers/view");
+// Dependencies
+const express      = require("express");
+const mongoose     = require("mongoose");
+const exphbs       = require("express-handlebars");
+const bodyParser   = require("body-parser");
+const path         = require("path");
+const logger       = require("morgan");
+const request      = require("cheerio");
+const viewRoute    = require("./controllers/view");
+const scrapeRoute  = require("./controllers/scrape");
+const commentRoute = require("./controllers/comment");
 
 // Set up express app
 const app = express();
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/newsScraper"
-var PORT = process.env.PORT || 8080
+
+// Set up handlebars
+app.engine("handlebars", exphbs({ defaultLayout: "main" }));
+app.set("view engine", "handlebars");
+
+// Have Morgan log requests
+app.use(logger("dev"));
+
+// Body Parser
+app.use(bodyParser.urlencoded({ extended: false }));
 
 // Join public files
-app.use(express.static(__dirname + "app/public"));
+app.use(express.static("public"));
 
-// Pull in necessary middleware
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-  extended: true
-}));
-app.use(bodyParser.text());
+// Use Routes
+app.use(viewRoute);
+app.use(commentRoute);
+app.use(scrapeRoute);
 
-//App Routes
-require(path.join(__dirname, './app/routing/apiRoutes'))(app);
-require(path.join(__dirname, './app/routing/htmlRoutes'))(app);
+// Connect to mongodb
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/newsScraper";
+const PORT        = process.env.PORT || 3000;
+
+// Require Database Models
+const db = require("./models");
+
+// Have Mongoose handle promises
+mongoose.Promise = Promise;
+mongoose.connect(MONGODB_URI);
 
 // Start listening on PORT
 app.listen(PORT, function () {
-  console.log("app running");
+  console.log("App running on port: " + PORT);
 })
