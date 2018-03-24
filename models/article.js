@@ -11,12 +11,12 @@ const ArticleSchema = new Schema({
     type: String,
     required: true
   },
-  content: {
-    type: Array,
-    required: true
-  },
   thumbnail: {
     type: String,
+    required: true
+  },
+  content: {
+    type: Array,
     required: true
   },
   comments: [{
